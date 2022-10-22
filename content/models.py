@@ -1,3 +1,4 @@
+from secrets import choice
 from django.db import models
 from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
@@ -24,7 +25,7 @@ class Seller(models.Model):
   name = models.CharField(max_length=30)
   email= models.EmailField(blank=True)
   location= models.CharField(max_length=60, blank=False)
-  contact=models.IntegerField(max_length=20, blank=False)
+  contact=models.IntegerField()
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
 
@@ -48,7 +49,7 @@ class Buyer(models.Model):
   username = models.CharField(max_length=60)
   name = models.CharField(max_length=30)
   email= models.EmailField(blank=True)
-  contact=models.IntegerField(max_length=20, blank=False)
+  contact=models.IntegerField()
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
   def __str__(self):
@@ -71,8 +72,8 @@ class Item(models.Model):
   selling_price = models.IntegerField()
   buying_price = models.IntegerField()
   age = models.IntegerField()
-  status = models.CharField(choices=STATUS)
-  county = models.CharField(choices=COUNTIES )
+  status = models.CharField(max_length=30, choices=STATUS)
+  county = models.CharField(max_length=30, choices=COUNTIES )
   location= models.CharField(max_length=60, blank=False)
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
   updated = models.DateTimeField(auto_now=True, verbose_name='Date Updated, ', null=True)
@@ -89,6 +90,18 @@ def save_item(self):
 class Meta:
   verbose_name_plural = 'Items'
 
+class soldItem(models.Model):
+  item_id= models.ManyToManyField(Item, blank=True)
+  buyer_id=models.ManyToManyField(Buyer, blank=True)
+  created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
+  def delete_soldItem(self):
+    self.delete()
+
+  def save_soldItem(self):
+    self.save()
+
+class Meta:
+  verbose_name_plural = 'Sold Item'
 
 
