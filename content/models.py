@@ -1,9 +1,15 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
+from django.conf import settings
+
+User = settings.AUTH_USER_MODEL
 
 
 # Create your models here.
+class User(AbstractUser):
+  is_seller = models.BooleanField(default=False)
+  is_buyer = models.BooleanField(default=False)
 
 STATUS = [
 ('Sold',('Sold')),
@@ -89,7 +95,7 @@ def save_item(self):
 class Meta:
   verbose_name_plural = 'Items'
 
-class soldItem(models.Model):
+class SoldItem(models.Model):
   item_id= models.ManyToManyField(Item, blank=True)
   buyer_id=models.ManyToManyField(Buyer, blank=True)
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
