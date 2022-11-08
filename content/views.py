@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http.response import Http404, HttpResponse
 from .serializer import *
+from .serializers import *
+
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
@@ -107,21 +109,74 @@ class ItemDetails(APIView):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SoldItem(APIView):
-  permission_classes = (AllowAny)
+  permission_classes = (AllowAny, )
 
   def get(self, request):
     solditem = SoldItem.objects.all()
     serializer = SoldItemSerializer(solditem, many=True)
     return Response(serializer.data)
 
-  authentication_classes=[]
+  
   def post(self, request):
     serializer = SoldItemSerializer(data=request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+class SoldItemDetails(APIView):
+  permission_classes = (AllowAny, )
+  
+  def get_object(self, pk):
+    try:
+      return SoldItem.objects.get(pk=pk)
+    except SoldItem.DoesNotExist:
+      raise Http404
+
+  # get particular solditem
+
+  def get(self, pk, request, format=None):
+    solditem = self.get_object(pk)
+    serializer = SoldItemSerializer(solditem)
+    return Response(serializer.data)
+
+  # update solditem
+
+  def update(self, request, pk, format=None):
+    solditem = self.get_object(pk)
+    serializer = SoldItemSerializer(solditem, data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+  # delete solditem
+  def delete(self, request, pk, format=None):
+    solditem = self.get_object(pk)
+    solditem.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+# get login token
+class GetTokenPairView(TokenObtainPairView):
+  permission_classes=(AllowAny, )
+  serializer_class= GetTokenPairSerializer
+
+# register seller
+class RegisterSellerView(generics.CreateAPIView):
+  queryset= User.objects.all()
+  permission_classes=(AllowAny, )
+  serializer_class= RegisterSellerSerializer
+
+# register buyer
+class RegisterBuyer(generics.CreateAPIView):
+  queryset = User.objects.all()
+  permission_classes=(AllowAny, )
+  serializer_class=RegisterBuyerSerializer
+
+
+
+
+
 
 
 
