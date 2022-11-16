@@ -110,3 +110,5 @@ class Meta:
   verbose_name_plural = 'Sold Item'
 
 
+
+

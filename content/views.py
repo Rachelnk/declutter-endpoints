@@ -171,10 +171,41 @@ class RegisterSellerView(generics.CreateAPIView):
 class RegisterBuyer(generics.CreateAPIView):
   queryset = User.objects.all()
   permission_classes=(AllowAny, )
-  serializer_class=RegisterBuyerSerializer
+  serializer_class= RegisterBuyerSerializer
+
+# items list
+@api_view(['GET', 'POST', 'DELETE'])
+def item_list(request):
+    if request.method == 'GET':
+      items = Item.objects.all()
+      items_serializer=ItemSerializer(items, many=True, context={'request': request})
+      return Response(items_serializer.data)
+    elif request.method == 'POST':
+      items_data= JSONParser().parse(request)
+      items_serializer = ItemSerializer(data=items_data)
+      if items_serializer.is_valid():
+        items_serializer.save()
+        return Response(items_serializer.data, status=status.HTTP_201_CREATED)
+      return Response(items_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# single item view
+@api_view(['GET', 'PUT'])
+def item_details(request, item_id):
+  try:
+    item = Item.objects.get(id=item_id)
+  except Item.DoesNotExist:
+    return JsonResponse({'message': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+  if request.method == 'GET':
+    item_serializer = ItemSerializer(item, many=True)
+    return Response(item_serializer.data)
+  elif request.method == 'PUT':
+    item_data = JSONParser().parse(request)
+    item_serializer= ItemSerializer(item, data=item_data)
+    if item_serializer.is_valid():
+      item_serializer.save()
+      return JsonResponse(item_serializer.data)
+    return JsonResponse(item_serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
 

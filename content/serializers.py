@@ -86,5 +86,23 @@ class RegisterBuyerSerializer(serializers.ModelSerializer):
 
     return user
 
+class RegisterItemSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Item
+    fields= ['__all__']
+
+class RegisterItemUpdateSerializer(serializers.ModelSerializer):
+  def to_representation(self, instance):
+    return ItemSerializer(instance).to_representation(instance)
+
+  class Meta:
+    model = Item
+    fields = ['__all__']
+
+
+class RegisterSoldItemSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = SoldItem
+    fields = ['__all__']
 
   
