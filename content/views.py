@@ -207,8 +207,23 @@ def item_details(request, item_id):
       return JsonResponse(item_serializer.data)
     return JsonResponse(item_serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
+# post sold item
+@api_view(['POST'])
+def sold_item(request, buyer_id):
+  if request.method == 'POST':
+    solditem_data=JSONParser().parse(request)
+    solditem_serializer= SoldItemSerializer(data=solditem_data)
+    if solditem_serializer.is_valid():
+      solditem_serializer.save()
+      return Response(solditem_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(solditem_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# get sold items view
+@api_view(['GET', 'DELETE'])
+def bought_item(request, buyer_id):
+  if request.method == 'GET':
+    buyer = Buyer.objects.get(id=buyer_id)
+    sold_item = SoldItem
 
 
 
