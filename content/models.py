@@ -96,8 +96,8 @@ class Meta:
   verbose_name_plural = 'Items'
 
 class SoldItem(models.Model):
-  item_id= models.ManyToManyField(Item, blank=True)
-  buyer_id=models.ManyToManyField(Buyer, blank=True)
+  item= models.ManyToManyField(Item, blank=True)
+  buyer=models.ManyToManyField(Buyer, blank=True)
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
   def delete_soldItem(self):

@@ -219,11 +219,20 @@ def sold_item(request, buyer_id):
     return Response(solditem_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # get sold items view
-@api_view(['GET', 'DELETE'])
-def bought_item(request, buyer_id):
-  if request.method == 'GET':
-    buyer = Buyer.objects.get(id=buyer_id)
-    sold_item = SoldItem
+# @api_view(['GET', 'DELETE'])
+# def bought_item(request, buyer_id):
+#   try:
+#     buyer = Buyer.objects.get(id=buyer_id)
+#     sold_item = SoldItem.objects.filter(id=buyer)
+#   except SoldItem.DoesNotExist:
+#     return JsonResponse({'message': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+#   if request.method == 'GET':
+#     sold_serializer = SoldItemSerializer()
+
+
+
+
+    
 
 
 
