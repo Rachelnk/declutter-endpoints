@@ -23,7 +23,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework_jwt.settings import api_settings
 import jwt
 import json
-# from settings import SECRET_KEY
+from declutter.settings import SECRET_KEY
 
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -174,7 +174,7 @@ class RegisterBuyer(generics.CreateAPIView):
   serializer_class= RegisterBuyerSerializer
 
 # items list
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'POST'])
 def item_list(request):
     if request.method == 'GET':
       items = Item.objects.all()
@@ -187,6 +187,7 @@ def item_list(request):
         items_serializer.save()
         return Response(items_serializer.data, status=status.HTTP_201_CREATED)
       return Response(items_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 # single item view
@@ -219,16 +220,43 @@ def sold_item(request, buyer_id):
     return Response(solditem_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # get sold items view
-# @api_view(['GET', 'DELETE'])
-# def bought_item(request, buyer_id):
-#   try:
-#     buyer = Buyer.objects.get(id=buyer_id)
-#     sold_item = SoldItem.objects.filter(id=buyer)
-#   except SoldItem.DoesNotExist:
-#     return JsonResponse({'message': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
-#   if request.method == 'GET':
-#     sold_serializer = SoldItemSerializer()
+@api_view(['GET', 'DELETE'])
+def bought_item(request, buyer_id):
+  try:
+    buyer = Buyer.objects.get(id=buyer_id)
+    sold_item = SoldItem.objects.filter(id=buyer)
+  except SoldItem.DoesNotExist:
+    return JsonResponse({'message': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+  if request.method == 'GET':
+    sold_serializer = SoldItemSerializer(sold_item, many=True)
+    return Response(sold_serializer.data)
+  elif request.method == 'DELETE':
+    sold_serializer.delete()
+    return Response({'message': 'Item deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
+class LoginUser(APIView):
+  permission_classes = (AllowAny, )
+  def post(self, request, *args, **kwargs):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+    if user:
+      payload = jwt_payload_handler(user)
+      return Response({
+        'id':user.id,
+        'response_code':'success',
+        'response_msg':'Login Successful',
+        'username':user.username,
+        'token':jwt.encode(payload, SECRET_KEY)
+      }, status.HTTP_200_OK)
+    else:
+      return Response(
+        { 'response_code':'error',
+          'response_msg':'Invalid credentials'}, status.HTTP_400_BAD_REQUEST
+          )
+
+# @api_view(['GET'])
+# @permission_classes((AllowAny))
 
 
 
