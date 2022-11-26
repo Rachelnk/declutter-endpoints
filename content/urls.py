@@ -1,4 +1,4 @@
-from django.urls import re_path, path
+from django.urls import re_path, path, url
 from .views import *
 from . import views
 from rest_framework_jwt.views import (obtain_jwt_token, verify_jwt_token, refresh_jwt_token)
@@ -21,4 +21,15 @@ urlpatterns = [
   # items endpoints
 
   # sold items endpoints
+
+  # login signup endpoints
+  path('signin/', GetTokenPairView.as_view(), name='token_obtain_pair'),
+  path('signup-seller/', RegisterSellerView.as_view(), name='signup-seller'),
+  path('signup-buyer/', RegisterBuyer.as_view(), name='signup-buyer'),
+  url(r'^login', views.LoginUser.as_view()),
+  url(r'^token_auth', obtain_jwt_token),
+  url(r'^refresh_token', refresh_jwt_token),
+  url(r'^verify_token', verify_jwt_token),
+  url(r'^'),
+  
 ]
