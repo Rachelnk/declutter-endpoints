@@ -30,7 +30,7 @@ class Seller(models.Model):
   name = models.CharField(max_length=30)
   email= models.EmailField(blank=True)
   location= models.CharField(max_length=60, blank=False)
-  contact=models.IntegerField()
+  contact=models.CharField(max_length=60, blank=False)
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
 
@@ -54,7 +54,7 @@ class Buyer(models.Model):
   username = models.CharField(max_length=60)
   name = models.CharField(max_length=30)
   email= models.EmailField(blank=True)
-  contact=models.IntegerField()
+  contact=models.CharField(max_length=60, blank=False)
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
   def __str__(self):
@@ -70,7 +70,7 @@ class Buyer(models.Model):
       verbose_name_plural = 'Buyer'
 
 class Item(models.Model):
-  seller_id=models.ForeignKey(Seller, on_delete=models.CASCADE)
+  seller_id=models.ForeignKey(Seller, on_delete=models.CASCADE, null=True)
   name = models.CharField(max_length=30)
   image = CloudinaryField('image')
   description = models.CharField(max_length=140)
@@ -96,8 +96,8 @@ class Meta:
   verbose_name_plural = 'Items'
 
 class SoldItem(models.Model):
-  item= models.ForeignKey(Item, on_delete=models.CASCADE)
-  buyer=models.ForeignKey(Buyer, on_delete=models.CASCADE) 
+  item= models.ForeignKey(Item, on_delete=models.CASCADE, null=True)
+  buyer=models.ForeignKey(Buyer, on_delete=models.CASCADE, null=True) 
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
 
   def delete_soldItem(self):
