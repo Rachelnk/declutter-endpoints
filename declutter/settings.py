@@ -194,6 +194,12 @@ JWT_AUTH = {
 
 AUTH_USER_MODEL = 'content.User'
 
-
+# Cloudinary configurations
+cloudinary.config( 
+  cloud_name = 'kiaries-gallery',
+  api_key = '343145548373335', 
+  api_secret = 'oNEicoCy_M9UqMwBjoRC1fyPAuE',
+  secure = True
+)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

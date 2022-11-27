@@ -214,7 +214,7 @@ class SellerDetail(APIView):
     except Seller.DoesNotExist:
       raise Http404  
 
-  def get(self, pk, request, format=None):
+  def get(self,request ,pk, format=None):
     seller = self.get_object(pk)
     serializer = SellerSerializer(seller)
     return Response(serializer.data)  
