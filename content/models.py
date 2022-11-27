@@ -70,7 +70,7 @@ class Buyer(models.Model):
       verbose_name_plural = 'Buyer'
 
 class Item(models.Model):
-  seller_id=models.ManyToManyField(Seller, blank=False)
+  seller_id=models.ForeignKey(Seller, on_delete=models.CASCADE)
   name = models.CharField(max_length=30)
   image = CloudinaryField('image')
   description = models.CharField(max_length=140)

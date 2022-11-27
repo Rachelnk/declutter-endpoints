@@ -64,12 +64,12 @@ class ItemList(APIView):
     serializer = ItemSerializer(items, many=True)
     return Response(serializer.data)
 
-  def post(self, request):
-    serializer = ItemSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  # def post(self, request):
+  #   serializer = ItemSerializer(data=request.data)
+  #   if serializer.is_valid():
+  #     serializer.save()
+  #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+  #   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
   def post(self, request, format=None):
     serializer = ItemSerializer(data=request.data)
@@ -174,19 +174,27 @@ class RegisterBuyer(generics.CreateAPIView):
   serializer_class= RegisterBuyerSerializer
 
 # items list
-@api_view(['GET', 'POST'])
-def item_list(request):
-    if request.method == 'GET':
-      items = Item.objects.all()
+@api_view(['GET', 'POST','DELETE'])
+def item_list(request, seller_id):
+    try:
+      sellers = Seller.objects.get(id=seller_id)
+      items = Item.objects.filter(seller_id=sellers)
+    except Item.DoesNotExist:
+      return JsonResponse({'message': 'Item not found'}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':      
       items_serializer=ItemSerializer(items, many=True, context={'request': request})
       return Response(items_serializer.data)
     elif request.method == 'POST':
       items_data= JSONParser().parse(request)
       items_serializer = ItemSerializer(data=items_data)
       if items_serializer.is_valid():
-        items_serializer.save()
+        items_serializer.save(seller_id=seller_id)
         return Response(items_serializer.data, status=status.HTTP_201_CREATED)
       return Response(items_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request == 'DELETE':
+      items.delete()
+      return JsonResponse({'message': 'Item deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
     
 
 
