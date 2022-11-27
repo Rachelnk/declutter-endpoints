@@ -108,21 +108,35 @@ class ItemDetails(APIView):
     item.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-class SoldItem(APIView):
+class SoldItemDetail(APIView):
   permission_classes = (AllowAny, )
 
-  def get(self, request):
-    solditem = SoldItem.objects.all()
-    serializer = SoldItemSerializer(solditem, many=True)
+  def get_object(self, pk):
+    try:
+      return SoldItem.objects.get(pk=pk)
+    except SoldItem.DoesNotExist:
+      raise Http404 
+  
+  def get(self, request, pk, format=None):
+    solditem = self.get_object(pk)
+    serializer = SoldItemSerializer(solditem)
     return Response(serializer.data)
 
-  
-  def post(self, request):
+  def put(self, request, pk, format=None):
+    solditem = self.get(pk)
     serializer = SoldItemSerializer(data=request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  
+  def delete(self, request, pk, format=None):
+    solditem=self.get_object(pk)
+    solditem.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+  
+
+
 
 class SoldItemDetails(APIView):
   permission_classes = (AllowAny, )
@@ -217,8 +231,11 @@ def item_details(request, item_id):
     return JsonResponse(item_serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 # post sold item
-@api_view(['POST'])
-def sold_item(request, buyer_id):
+@api_view(['POST', 'GET'])
+def sold_item(request, item_id):
+  # try:
+  #   sellers=Seller.objects.get()
+  # except:
   if request.method == 'POST':
     solditem_data=JSONParser().parse(request)
     solditem_serializer= SoldItemSerializer(data=solditem_data)
@@ -226,6 +243,7 @@ def sold_item(request, buyer_id):
       solditem_serializer.save()
       return Response(solditem_serializer.data, status=status.HTTP_201_CREATED)
     return Response(solditem_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  # if request.method == 'GET':
 
 # get sold items view
 @api_view(['GET', 'DELETE'])
