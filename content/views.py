@@ -6,8 +6,7 @@ from .serializers import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
-
-import requests
+# import requests
 from rest_framework.decorators import api_view, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser
@@ -31,8 +30,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from declutter import settings
 from .models import Seller, Item, SoldItem, Buyer
-from rest_framework import Response
+from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -63,14 +65,7 @@ class ItemList(APIView):
     items = Item.objects.all()
     serializer = ItemSerializer(items, many=True)
     return Response(serializer.data)
-
-  # def post(self, request):
-  #   serializer = ItemSerializer(data=request.data)
-  #   if serializer.is_valid():
-  #     serializer.save()
-  #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-  #   return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+  
   def post(self, request, format=None):
     serializer = ItemSerializer(data=request.data)
     if serializer.is_valid():
@@ -108,6 +103,21 @@ class ItemDetails(APIView):
     item.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+class SoldItemList(APIView):
+  permission_classes= (AllowAny, )
+
+  def get(self, request):
+    solditems = SoldItem.objects.all()
+    serializer = SoldItemSerializer(solditems, many=True)
+    return Response(serializer.data)
+  
+  def post(self, request):
+    serializer = SoldItemSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class SoldItemDetail(APIView):
   permission_classes = (AllowAny, )
 
@@ -134,31 +144,40 @@ class SoldItemDetail(APIView):
     solditem=self.get_object(pk)
     solditem.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+class BuyerList(APIView):
+  permission_classes= (AllowAny, )
+
+  def get(self, request):
+    buyers = Buyer.objects.all()
+    serializer = BuyerSerializer(buyers, many=True)
+    return Response(serializer.data)
   
+  def post(self, request):
+    serializer = BuyerSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-class SoldItemDetails(APIView):
+class BuyerDetail(APIView):
   permission_classes = (AllowAny, )
   
   def get_object(self, pk):
     try:
-      return SoldItem.objects.get(pk=pk)
-    except SoldItem.DoesNotExist:
-      raise Http404
-
-  # get particular solditem
+      return Buyer.objects.get(pk=pk)
+    except Buyer.DoesNotExist:
+      raise Http404  
 
   def get(self, pk, request, format=None):
-    solditem = self.get_object(pk)
-    serializer = SoldItemSerializer(solditem)
-    return Response(serializer.data)
+    buyer = self.get_object(pk)
+    serializer = BuyerSerializer(buyer)
+    return Response(serializer.data)  
 
-  # update solditem
-
-  def update(self, request, pk, format=None):
-    solditem = self.get_object(pk)
-    serializer = SoldItemSerializer(solditem, data=request.data)
+  def put(self, request, pk, format=None):
+    buyer = self.get_object(pk)
+    serializer = BuyerSerializer(buyer, data=request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data)
@@ -166,8 +185,52 @@ class SoldItemDetails(APIView):
 
   # delete solditem
   def delete(self, request, pk, format=None):
-    solditem = self.get_object(pk)
-    solditem.delete()
+    buyer = self.get_object(pk)
+    buyer.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+class SellerList(APIView):
+  permission_classes= (AllowAny, )
+
+  def get(self, request):
+    sellers = Seller.objects.all()
+    serializer = SellerSerializer(sellers, many=True)
+    return Response(serializer.data)
+  
+  def post(self, request):
+    serializer = SellerSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SellerDetail(APIView):
+  permission_classes = (AllowAny, )
+  
+  def get_object(self, pk):
+    try:
+      return Seller.objects.get(pk=pk)
+    except Seller.DoesNotExist:
+      raise Http404  
+
+  def get(self, pk, request, format=None):
+    seller = self.get_object(pk)
+    serializer = SellerSerializer(seller)
+    return Response(serializer.data)  
+
+  def put(self, request, pk, format=None):
+    seller = self.get_object(pk)
+    serializer = SellerSerializer(seller, data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+  # delete solditem
+  def delete(self, request, pk, format=None):
+    seller = self.get_object(pk)
+    seller.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 # get login token
