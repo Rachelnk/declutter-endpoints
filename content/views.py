@@ -66,7 +66,7 @@ class ItemList(APIView):
     serializer = ItemSerializer(items, many=True)
     return Response(serializer.data)
   
-  def post(self, request, format=None):
+  def post(self, request):
     serializer = ItemSerializer(data=request.data)
     if serializer.is_valid():
       serializer.save()
@@ -78,7 +78,7 @@ class ItemDetails(APIView):
 
    def get_object(self, pk):
     try:
-      item = Item.objects.get(pk=pk)
+      return Item.objects.get(pk=pk)
     except Item.DoesNotExist:
       raise Http404
 
@@ -170,7 +170,7 @@ class BuyerDetail(APIView):
     except Buyer.DoesNotExist:
       raise Http404  
 
-  def get(self, pk, request, format=None):
+  def get(self, request, pk, format=None):
     buyer = self.get_object(pk)
     serializer = BuyerSerializer(buyer)
     return Response(serializer.data)  

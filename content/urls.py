@@ -13,7 +13,7 @@ urlpatterns = [
 
   # item endpoints
   path('api/items/', views.ItemList.as_view()),
-  path('api/item-details/<int:pk>/', views.ItemDetails.as_view()),
+  path('api/item-details/<int:pk>', views.ItemDetails.as_view()),
 
   # buyer endpoints
   path('api/buyers/', views.BuyerList.as_view()),

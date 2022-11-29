@@ -61,7 +61,7 @@ class Buyer(models.Model):
     return str(self.user)
 
   def save_buyer(self):
-    self.user()
+    self.save()
 
   def delete_buyer(self):
     self.delete()
@@ -69,8 +69,26 @@ class Buyer(models.Model):
   class Meta: 
       verbose_name_plural = 'Buyer'
 
+class Category(models.Model):
+  name = models.CharField(max_length=60, )
+
+  def __str__(self):
+    return str(self.name)
+  
+  def save_category(self):
+    self.save()
+
+  def delete_category(self):
+    self.delete()
+
+  @classmethod
+  def get_all_categories(cls):
+    categories = Category.objects.all()
+    return categories
+  
+
 class Item(models.Model):
-  seller_id=models.ForeignKey(Seller, on_delete=models.CASCADE, null=True)
+  seller_id=models.ManyToManyField(Seller, blank=True)
   name = models.CharField(max_length=30)
   image = CloudinaryField('image')
   description = models.CharField(max_length=140)
@@ -80,6 +98,7 @@ class Item(models.Model):
   status = models.CharField(max_length=30, choices=STATUS)
   county = models.CharField(max_length=30, choices=COUNTIES )
   location= models.CharField(max_length=60, blank=False)
+  category=models.ForeignKey(Category, on_delete=models.CASCADE)
   created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created, ', null=True)
   updated = models.DateTimeField(auto_now=True, verbose_name='Date Updated, ', null=True)
 
@@ -91,6 +110,9 @@ def delete_item(self):
 
 def save_item(self):
   self.save()
+@classmethod
+def item_by_category(cls, category):
+  item_category = Item.objects.filter(category__name__icontains = category)
 
 class Meta:
   verbose_name_plural = 'Items'
